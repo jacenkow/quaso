@@ -1,0 +1,44 @@
+name: Release
+
+# Tagging is the decision; this is the paperwork. The notes come out of
+# CHANGELOG.md rather than being written again here, so there is one
+# place they can be wrong.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: The tag and the package agree
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pip install -e . --quiet
+          package=$(python -c "import quaso; print(quaso.__version__)")
+          if [ "$tag" != "$package" ]; then
+            echo "tag $tag but package $package" >&2
+            exit 1
+          fi
+          echo "both $tag"
+
+      - name: Take the notes from the changelog
+        run: |
+          python scripts/changelog_section.py "$GITHUB_REF_NAME" > notes.md
+          cat notes.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file notes.md

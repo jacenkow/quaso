@@ -1,0 +1,99 @@
+# Copy to .quaso/config.toml and edit. That file is gitignored, so your own
+# endpoints stay local. Every value here is optional; anything you omit falls
+# back to the built-in defaults, and CLI flags override both.
+
+[provider]
+name = "ollama"
+# ${VAR:-fallback} works like the shell, so a machine-specific address can
+# live in your environment rather than in this file.
+base_url = "${OLLAMA_HOST:-http://localhost:11434}"
+model = "qwen3.6:latest"
+
+[provider.options]                    # passed straight through to the provider
+think = true
+keep_alive = "10m"
+# The context window, and the only place to set it. quaso sends this exact
+# value on every request, so the window it compacts against and the window
+# the server allocates are always the same. Left unset, Ollama allocates the
+# model's maximum, which costs VRAM for no measured benefit.
+num_ctx = 32768
+
+[permissions]
+# default | acceptEdits | readonly | yolo
+# yolo stops the questions about this directory, not the question about
+# leaving it: reaching outside is asked in every mode.
+mode = "default"
+# Command-scoped allow rules never approve pipes, redirects, substitutions or
+# chained commands. Use deny = ["bash"] to disable the shell reliably; command
+# patterns are lexical safeguards, not a sandbox.
+# allow = ["bash(git status*)"]
+# deny  = ["bash"]
+
+[context]
+# auto_compact is a backstop; the model calls the compact tool itself at
+# milestones it recognises.
+auto_compact = true
+compact_threshold = 0.7
+# Below this the model is not told how much context it has used.
+notice_threshold = 0.5
+# Left at 0, the window comes from provider.options.num_ctx, which is
+# where it belongs. Set this only to compact against a smaller window
+# than the server allocated.
+max_tokens = 0
+# Never summarised away, so the model keeps the thread of what it was
+# doing across a compaction.
+keep_recent_messages = 4
+
+[web]
+# "auto" walks a keyless chain needing no key and nothing hosted:
+#   duckduckgo -> ddg_lite -> stackoverflow -> wikipedia
+backend = "auto"
+max_results = 5
+timeout = 20
+# The most a fetched page may cost the context. The whole page is kept
+# under .quaso/tool-output/ regardless, so this bounds what is quoted
+# into the conversation, not what is retrieved.
+fetch_max_chars = 12000
+# Fetching private and loopback addresses is refused, so a page cannot
+# steer the agent into the machine's own network. Turn this on only to
+# reach a service you host yourself.
+allow_private_addresses = false
+# searxng_url = "http://localhost:8080"
+# api_key = "${TAVILY_API_KEY}"
+
+[sandbox]
+# "auto" uses what the platform provides: Seatbelt on macOS, bubblewrap
+# on Linux when installed. A machine with neither runs unconfined and
+# says so at startup. "off" is that on purpose.
+mode = "auto"
+# Ordinary work fetches packages, so this defaults on. Turning it off
+# denies the network to shell commands only.
+network = true
+
+[agent]
+max_iterations = 40
+# Subagents get a shorter leash: they run unattended, so a loop there is
+# not noticed until it has already cost the time.
+subagent_max_iterations = 20
+require_read_before_edit = true
+# Default ceiling on one tool result. Tools carry their own defaults around
+# this; tool_output_chars overrides both by name.
+max_tool_output_chars = 8000
+# [agent.tool_output_chars]
+# read_file = 12000
+# grep = 6000
+
+# Hooks run a command around a tool call. A pre_tool_use hook that exits
+# non-zero blocks the call, so it can enforce what permissions cannot.
+# [[hooks.pre_tool_use]]
+# matcher = "bash"
+# command = "./scripts/audit-command.sh"
+
+# [[hooks.post_tool_use]]
+# matcher = "write_file|edit_file"
+# command = "ruff format ."
+
+# Inspect any configured server with: quaso mcp list
+# [mcp.servers.filesystem]
+# command = "npx"
+# args = ["-y", "@modelcontextprotocol/server-filesystem", "."]

@@ -1,0 +1,21 @@
+# Pinning an action only helps if something says when the pin is stale,
+# otherwise a known-good version quietly becomes a known-bad one.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(ci)"
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(deps)"
+    # The floors in pyproject are deliberately low, so quaso installs
+    # alongside whatever a project already has. Only security fixes are
+    # worth a pull request here.
+    open-pull-requests-limit: 5

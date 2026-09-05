@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Local state. config.toml is ignored so machine-specific endpoints (a LAN
+# Ollama address) never reach the repo; see config.example.toml.
+.quaso/config.toml
+.quaso/sessions/
+.quaso/history
+
+# Kept local for now: the eval harness and its machine-specific results.
+evals/
+.quaso/tool-output/
