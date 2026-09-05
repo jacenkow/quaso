@@ -95,6 +95,7 @@ Type `/` to list commands:
 | `/new` | fresh session |
 | `/compact` | summarise history to reclaim context |
 | `/context` | token usage |
+| `/prompt` | everything the model was told, `/prompt all` for the lot |
 | `/tools`, `/mcp`, `/sessions` | what's available |
 | `/model [name]` | switch model, unloading the old one from VRAM |
 | `/help`, `/quit` | |
@@ -143,6 +144,11 @@ Inside the directory you started in, reads run freely and anything that
 writes or runs commands asks first. Anything reaching *outside* asks too,
 even a plain read: reading a file and sending it somewhere are otherwise
 both silent.
+
+Searching and fetching ask too, before the first one in a session.
+Neither writes anything, but both are how something you pasted leaves
+the machine, which is usually the reason for running a local model in
+the first place.
 
 `--mode acceptEdits` allows in-project edits, `readonly` refuses all
 mutations, `yolo` asks nothing *inside the working directory*. Leaving

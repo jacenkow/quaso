@@ -189,11 +189,15 @@ class ReplUI(UI):
     async def ask_permission(self, request: PermissionRequest) -> Answer:
         self._break_stream()
         detail = request.detail or request.tool_name
-        label = (
-            "Permission (outside working directory)"
-            if request.outside_workspace
-            else "Permission"
-        )
+        if request.leaves_machine:
+            # Named for what it costs rather than which tool it is: the
+            # point of a local model is that what you paste stays here,
+            # and this is where that stops being true.
+            label = "Permission (this leaves your machine)"
+        elif request.outside_workspace:
+            label = "Permission (outside working directory)"
+        else:
+            label = "Permission"
         self.console.print(f"\n[bold yellow]{label}:[/]", end=" ")
         self.console.print(detail, markup=False, highlight=False)
         prompt = "Allow? [y]es / [a]lways this session / [n]o: "

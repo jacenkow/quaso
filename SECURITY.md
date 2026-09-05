@@ -27,6 +27,15 @@ catch it. What `yolo` costs you is the prompt before something inside
 the project is changed, which is recoverable, rather than the prompt
 before your keys are read, which is not.
 
+**Nothing leaves the machine without being asked.** The model runs
+locally, so what you paste stays with you, and the two tools that reach
+the internet, `web_search` and `fetch_url`, ask before the first one in
+a session. Neither changes anything on disk, which is why they were
+waved through before: a search mutates nothing and is still the way a
+private thing gets out, inside a query string. Answer "always" to stop
+being asked for the rest of the session, or put `allow = ["web_search"]`
+in the config to stop being asked at all.
+
 **Web content is untrusted.** Pages fetched by `fetch_url` are labelled as
 data in the prompt, and the model is told not to act on instructions found
 in them, but prompt injection is not a solved problem. Treat anything the

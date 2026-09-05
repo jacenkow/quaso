@@ -337,6 +337,24 @@ async def _handle_command(
                 f"({agent.context_fraction():.0%}) · "
                 f"{len(agent.session.messages)} messages"
             )
+        case "/prompt":
+            # The one thing a closed harness cannot show you, and the
+            # reason for running your own. Everything the model was told
+            # is here: the base prompt, the skills index, and whatever
+            # AGENTS.md added without announcing itself.
+            system = agent.session.messages[0].content
+            ui.info(system)
+            ui.info(
+                f"\n[{agent.context.usage([agent.session.messages[0]])} "
+                f"tokens of {agent.context.max_tokens}, "
+                f"{len(system)} characters]"
+            )
+            if argument in ("all", "full"):
+                for message in agent.session.messages[1:]:
+                    body = message.content or ""
+                    for call in message.tool_calls or []:
+                        body += f"\n  -> {call.name}({call.arguments})"
+                    ui.info(f"\n--- {message.role} ---\n{body}")
         case "/tools":
             ui.info("Tools: " + ", ".join(agent.tools.names()))
         case "/mcp":

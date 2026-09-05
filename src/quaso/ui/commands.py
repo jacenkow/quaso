@@ -11,6 +11,7 @@ COMMANDS: dict[str, str] = {
     "/new": "start a fresh session",
     "/compact": "summarise history now to reclaim context",
     "/context": "token usage and message count",
+    "/prompt": "show the system prompt, or /prompt all for everything",
     "/tools": "list available tools",
     "/mcp": "configured MCP servers and their tools",
     "/sessions": "recent saved sessions",

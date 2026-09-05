@@ -39,6 +39,10 @@ class PermissionRequest:
     primary_arg: str
     detail: str = ""
     outside_workspace: bool = False
+    # Running this sends something off the machine, which is the other
+    # way out of a workspace and the one a local model was meant to
+    # avoid.
+    leaves_machine: bool = False
 
 
 Asker = Callable[[PermissionRequest], Awaitable[Answer]]
@@ -100,6 +104,7 @@ class PermissionPolicy:
     ) -> Decision:
         primary = tool.primary_argument(params)
         outside = escapes_workspace(tool, params, ctx)
+        network = tool.network
 
         if _matches(self._config.deny, tool.name, primary):
             return Decision(False, "denied by configured deny rule")
@@ -115,14 +120,14 @@ class PermissionPolicy:
             )
         if self._config.mode == "readonly" and tool.mutates:
             return Decision(False, "readonly mode forbids mutating tools")
-        if self._config.mode == "yolo" and not outside:
+        if self._config.mode == "yolo" and not outside and not network:
             # yolo means "stop asking about my project", not "anything
             # goes". Leaving the workspace is still a question, because
             # the sandbox cannot answer it: file tools run inside quaso
             # itself, so nothing but this stands between the model and
             # the rest of the disk.
             return Decision(True)
-        if not tool.mutates and not outside:
+        if not tool.mutates and not outside and not network:
             return Decision(True)
         if (
             self._config.mode == "acceptEdits"
@@ -138,11 +143,14 @@ class PermissionPolicy:
             return Decision(True)
 
         answer = await self._asker(
-            PermissionRequest(tool.name, primary, detail, outside)
+            PermissionRequest(tool.name, primary, detail, outside, network)
         )
         if answer == "always":
             # Scoped to the tool, so granting one outside-workspace read
-            # does not silently bless every later one.
+            # does not silently bless every later one. A search is
+            # allowed to stick: asking before each one would teach
+            # people to agree without reading, which is worse than not
+            # asking at all.
             if not outside:
                 self._session_allow.append(tool.name)
             return Decision(True)

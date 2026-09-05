@@ -89,6 +89,10 @@ class Tool(ABC):
     # disk yet own something a second copy of them would fight over, the
     # session, the terminal, or the todo list.
     concurrent: ClassVar[bool] = False
+    # Whether running this sends anything off the machine. Separate from
+    # mutates, which asks whether it changes something here: a search
+    # changes nothing and is still the way a private thing gets out.
+    network: ClassVar[bool] = False
     # A tool's own output budget. None means take the global default.
     # A whole-file read earns more room than a directory listing.
     max_output_chars: ClassVar[int | None] = None

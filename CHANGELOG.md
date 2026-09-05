@@ -6,6 +6,20 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `web_search` and `fetch_url` ask before the first one in a session.
+  Neither mutates anything, which is why they ran freely, and neither
+  needed to: a search is how something you pasted leaves the machine,
+  inside a query string. Answering "always" settles it for the session.
+
+### Added
+
+- `/prompt` shows the system prompt the model was actually given, and
+  `/prompt all` the whole conversation. It is the one thing a closed
+  harness cannot show you, and until now this one could not either.
+
+
 ## [0.1.0]
 
 First release.

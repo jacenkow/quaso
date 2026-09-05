@@ -431,6 +431,7 @@ class WebSearchParams(BaseModel):
 
 class WebSearch(Tool):
     name = "web_search"
+    network = True
     concurrent = True
     max_output_chars = 5_000
     description = (
@@ -568,6 +569,7 @@ class FetchUrlParams(BaseModel):
 
 class FetchUrl(Tool):
     name = "fetch_url"
+    network = True
     concurrent = True
     description = (
         "Fetch a web page and return its main text. Use after web_search "
