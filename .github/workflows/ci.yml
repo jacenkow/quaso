@@ -81,7 +81,7 @@ jobs:
       - uses: actions/checkout@v4
       # Pinned: a third-party action on a moving branch runs
       # whatever its author pushed, with this repository's token.
-      - uses: DeterminateSystems/nix-installer-action@v22
+      - uses: DeterminateSystems/nix-installer-action@v23
       - name: Build the package
         run: nix build .#quaso --print-build-logs
       - name: Run it
